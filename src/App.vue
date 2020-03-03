@@ -1,29 +1,27 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <todo-list />
+    <todo-form />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from './components/HelloWorld.vue';
+  import {Component, Provide, Vue} from 'vue-property-decorator';
+  import TodoList from "@/components/TodoList.vue";
+  import TodoForm from "@/components/TodoForm.vue";
+  import {TodoModule} from "@/todo.module";
+  import {getModule} from "vuex-module-decorators";
 
-@Component({
-  components: {
-    HelloWorld,
-  },
-})
-export default class App extends Vue {}
+  @Component({
+    components: {
+      TodoList,
+      TodoForm
+    },
+  })
+  export default class App extends Vue {
+
+    @Provide('todoModule')
+    readonly todoModule: (() => TodoModule) = () => getModule(TodoModule, this.$store)
+
+  }
 </script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
