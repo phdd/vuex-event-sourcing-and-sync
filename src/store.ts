@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import {TodoModule} from '@/todo.module';
-import {eventListener, EventModule} from "@/events";
+import {eventMediator, EventModule} from "@/events";
 
 Vue.use(Vuex);
 
@@ -11,6 +11,6 @@ export default new Vuex.Store({
     todos: TodoModule,
   },
   plugins: [
-    eventListener.plugin
+    eventMediator.plugin
   ]
 });

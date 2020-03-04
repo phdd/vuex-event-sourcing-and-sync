@@ -1,7 +1,7 @@
 import {getModule, Module, Mutation, VuexModule} from "vuex-module-decorators";
 import {Store} from "vuex";
 
-let eventListeningPaused = false;
+let eventMediationPaused = false;
 const mutationEventMetadata: IMutationEventMetadata[] = [];
 
 interface IMutationEvent {
@@ -12,31 +12,36 @@ interface IMutationEvent {
 
 interface IMutationEventMetadata {
     readonly type: string;
-    readonly name: string;
+    readonly event: string;
     readonly module: string;
     readonly stateMapper: (value: any) => any;
 }
 
 @Module({
     namespaced: true,
-    name: 'events'
+    name: 'events',
+    preserveState: true
 })
 export class EventModule extends VuexModule {
 
-    items: IMutationEvent[] = [];
+    events: IMutationEvent[] = [];
 
     @Mutation create(event: IMutationEvent) {
-        this.items.push(event);
+        this.events.push(event);
+    }
+
+    @Mutation flush() {
+        this.events = [];
     }
 
 }
 
 export const mutationEventDecorator = (module: string, stateMapper?: (value: any) => any) => {
-    return (name?: string) => {
+    return (event?: string) => {
         return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
             mutationEventMetadata.push({
                 type: `${module}/${String(propertyKey)}`,
-                name: name || String(propertyKey),
+                event: event || String(propertyKey),
                 stateMapper: stateMapper || ((v) => v),
                 module,
             });
@@ -45,18 +50,18 @@ export const mutationEventDecorator = (module: string, stateMapper?: (value: any
     };
 };
 
-export const eventListener = {
-    pause: () => { eventListeningPaused = true; },
-    resume: () => { eventListeningPaused = false; },
+export const eventMediator = {
+    pause: () => { eventMediationPaused = true; },
+    resume: () => { eventMediationPaused = false; },
 
     plugin: (store: Store<any>) => {
         store.subscribe((mutation) => {
             const metadata = mutationEventMetadata.find(
                 (data) => data.type === mutation.type);
 
-            if (!eventListeningPaused && metadata !== undefined) {
+            if (!eventMediationPaused && metadata !== undefined) {
                 getModule(EventModule, store).create({
-                    name: metadata.name,
+                    name: metadata.event,
                     module: metadata.module,
                     payload: metadata.stateMapper(mutation.payload)
                 });
