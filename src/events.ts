@@ -1,10 +1,11 @@
 import {getModule, Module, Mutation, VuexModule} from "vuex-module-decorators";
 import {Store} from "vuex";
+import cloneDeep from 'lodash.clonedeep';
 
 let eventMediationPaused = false;
 const mutationEventMetadata: IMutationEventMetadata[] = [];
 
-interface IMutationEvent {
+export interface IMutationEvent {
     readonly module: string;
     readonly name: string;
     readonly payload: any;
@@ -14,7 +15,6 @@ interface IMutationEventMetadata {
     readonly type: string;
     readonly event: string;
     readonly module: string;
-    readonly stateMapper: (value: any) => any;
 }
 
 @Module({
@@ -36,13 +36,12 @@ export class EventModule extends VuexModule {
 
 }
 
-export const mutationEventDecorator = (module: string, stateMapper?: (value: any) => any) => {
+export const mutationEventDecorator = (module: string) => {
     return (event?: string) => {
         return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
             mutationEventMetadata.push({
                 type: `${module}/${String(propertyKey)}`,
                 event: event || String(propertyKey),
-                stateMapper: stateMapper || ((v) => v),
                 module,
             });
             return descriptor;
@@ -63,7 +62,7 @@ export const eventMediator = {
                 getModule(EventModule, store).create({
                     name: metadata.event,
                     module: metadata.module,
-                    payload: metadata.stateMapper(mutation.payload)
+                    payload: cloneDeep(mutation.payload)
                 });
             }
         });

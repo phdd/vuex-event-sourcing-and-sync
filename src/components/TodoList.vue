@@ -2,7 +2,7 @@
     <ul>
         <todo-list-item
                 v-for="item in items" :key="item.id"
-                :item="item" @remove="remove" />
+                :item="item" @remove="remove" @update="update" />
     </ul>
 </template>
 
@@ -28,5 +28,10 @@
         remove(item: ITodo) {
             this.todoModule().delete(item);
         }
+
+        update(item: ITodo) {
+            this.todoModule().save(item);
+        }
+
     }
 </script>
