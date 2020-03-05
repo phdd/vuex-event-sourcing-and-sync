@@ -19,6 +19,7 @@
     "quotemark": false,
     "comment-format": false,
     "no-console": false,
-    "forin": false
+    "forin": false,
+    "align": false
   }
 }

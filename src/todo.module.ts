@@ -1,12 +1,11 @@
 import {Action, Module, Mutation, VuexModule} from 'vuex-module-decorators';
 import {Guid} from 'guid-typescript';
-import {IMutationEvent, mutationEventDecorator} from "@/events";
-import {IPushRequest, ISyncAdapter} from "@/sync";
+import {IPushRequest, ISyncAdapter, ISyncEvent, syncEventDecorator} from "@/sync";
 import * as todoist from '@/todoist';
 import includes from 'lodash.includes';
 
 const moduleName = 'todos';
-const TodoEvent = mutationEventDecorator(moduleName);
+const TodoEvent = syncEventDecorator(moduleName);
 
 export interface ITodo {
     id?: string | number;
@@ -37,11 +36,29 @@ export class TodoModule extends VuexModule implements ISyncAdapter<string> {
         existingTodo.description = todo.description;
     }
 
+    @TodoEvent('item_complete')
+    @Mutation complete(todo: ITodo) {
+        const existingTodo = this.items[this.items.findIndex(
+            (item) => item.id === todo.id)];
+
+        existingTodo.completed = true;
+    }
+
+    @TodoEvent('item_uncomplete')
+    @Mutation uncomplete(todo: ITodo) {
+        const existingTodo = this.items[this.items.findIndex(
+            (item) => item.id === todo.id)];
+
+        existingTodo.completed = false;
+    }
+
     @TodoEvent('item_delete')
     @Mutation delete(todo: ITodo) {
         this.items.splice(this.items.findIndex(
             (item) => item.id === todo.id), 1);
     }
+
+
 
     @Mutation assignRemoteIds(mapping: object) {
         const affected: string[] = Object.keys(mapping);
@@ -66,7 +83,7 @@ export class TodoModule extends VuexModule implements ISyncAdapter<string> {
             request.changelog.some((candidate) =>
                 item.id === candidate.payload.id && candidate.name === 'item_delete');
 
-        const notDeletedBeforeFirstPush = (toBePushed: IMutationEvent) =>
+        const notDeletedBeforeFirstPush = (toBePushed: ISyncEvent) =>
             hasRemoteId(toBePushed.payload) || !isItemDeleted(toBePushed.payload);
 
         const commands = request.changelog

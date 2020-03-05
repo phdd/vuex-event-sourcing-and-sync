@@ -1,22 +1,20 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import {TodoModule} from '@/todo.module';
-import {eventMediator, EventModule} from "@/events";
+import {syncEventMediator, SyncModule} from "@/sync";
 import createPersistedState from "vuex-persistedstate";
-import {AppModule} from "@/app.module";
 
 Vue.use(Vuex);
 
 export const modules = {
-  app: AppModule,
-  events: EventModule,
+  sync: SyncModule,
   todos: TodoModule,
 };
 
 export default new Vuex.Store({
   modules,
   plugins: [
-    eventMediator.plugin,
+    syncEventMediator.plugin,
     createPersistedState()
   ]
 });

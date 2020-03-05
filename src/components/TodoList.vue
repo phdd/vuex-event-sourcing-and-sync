@@ -1,8 +1,11 @@
 <template>
     <ul>
         <todo-list-item
-                v-for="item in items" :key="item.id"
-                :item="item" @remove="remove" @update="update" />
+                v-for="item in items" :key="item.id" :item="item"
+                @remove="remove"
+                @completed="complete"
+                @uncompleted="uncomplete"
+        />
     </ul>
 </template>
 
@@ -29,8 +32,12 @@
             this.todoModule().delete(item);
         }
 
-        update(item: ITodo) {
-            this.todoModule().save(item);
+        complete(item: ITodo) {
+            this.todoModule().complete(item);
+        }
+
+        uncomplete(item: ITodo) {
+            this.todoModule().uncomplete(item);
         }
 
     }

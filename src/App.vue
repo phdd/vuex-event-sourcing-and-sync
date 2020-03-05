@@ -13,7 +13,7 @@
   import SyncButton from "@/components/SyncButton.vue";
   import {TodoModule} from "@/todo.module";
   import {getModule} from "vuex-module-decorators";
-  import {AppModule} from "@/app.module";
+  import {SyncModule} from "@/sync";
 
   @Component({
     components: {
@@ -27,8 +27,8 @@
     @Provide('todoModule')
     readonly todoModule: (() => TodoModule) = () => getModule(TodoModule, this.$store)
 
-    @Provide('appModule')
-    readonly appModule: (() => AppModule) = () => getModule(AppModule, this.$store)
+    @Provide('syncModule')
+    readonly syncModule: (() => SyncModule) = () => getModule(SyncModule, this.$store)
 
   }
 </script>

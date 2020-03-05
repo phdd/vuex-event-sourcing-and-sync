@@ -17,8 +17,12 @@
         readonly item!: ITodo;
 
         @Watch('item.completed')
-        @Emit() update() {
-            return this.item;
+        toggle() {
+            if (this.item.completed) {
+                this.$emit('completed', this.item);
+            } else {
+                this.$emit('uncompleted', this.item);
+            }
         }
 
     }
